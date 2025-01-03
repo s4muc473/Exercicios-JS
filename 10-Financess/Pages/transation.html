@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/Styles/global.css">
+    <link rel="stylesheet" href="/Styles/transation.css">
+    <script src="https://kit.fontawesome.com/2ec87f2ee1.js" crossorigin="anonymous"></script>
+
+    <title>Transation - Financess</title>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a onclick="logout()">
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </nav>
+    </header>
+
+    <main class="centralize">
+        <form>
+            <div>
+                <div class="form-field"><label>Transação *</label></div>
+                <input type="radio" name="type" checked id="expanse"> 
+                <label for="expanse">Despesa</label>
+                <input type="radio" name="type" id="income"> 
+                <label for="income">Receita</label>
+            </div>
+            <div>
+                <div class="form-field"><label>Data da Transação *</label></div>
+                <input type="date" id="date" onchange="onChangeDate()"> 
+                <div class="error" id="date-required-error">Data é Obrigatória/Invalida</div>
+            </div>
+            <div>
+                <div class="form-field"><label>Moeda</label></div>
+                <select id="currency">
+                    <option value="USD">Dolar</option>
+                    <option value="EUR">Euro</option>   
+                    <option value="BRL" selected>Real</option>
+                </select>
+            </div>
+            <div>
+                <div class="form-field"><label>Valor *</label></div>
+                <input type="number" onchange="onChangeValue()" id="value"> 
+                <div class="error" id="value-required-error">Valor é Obrigatória</div>
+                <div class="error" id="value-less-or-equal-to-zero-error">Valor deve ser maior que 0</div>
+            </div>
+            <div>
+                <div class="form-field"><label>Tipo de Transação *</label></div>
+                <select onchange="onChangeTransationType()" id="transation-type">
+                    <option value="">-- Selecione o tipo de transação --</option>
+                    <option>Acomodação</option>
+                    <option>Alimentação</option>
+                    <option>Transporte</option>
+                    <option>Salario</option>
+                    <option>Supermercado</option>
+                    <option>Outro</option>
+                </select>
+                <div class="error" id="transation-required-error">Tipo de transação é Obrigatório</div>
+            </div>
+            <div>
+                <div class="form-field"><label>Descrição</label></div>
+                <input type="text" id="description"> 
+            </div>
+            <button type="button" id="save-button" class="solid" disabled onclick="saveTransation()">Salvar</button>
+            <button type="button" class="clear">Cancelar</button>
+        </form>
+    </main> 
+
+
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+    <script src="/firebase-init.js"></script>
+
+    <script src="/Scripts/ScriptsOfLogin/auth-guard.js"></script>
+    <script src="/Scripts/ScriptsOfLogin/loading.js"></script>
+    <script src="/Scripts/ScriptsOfSystem/transation.js"></script>
+</body>
+</html>

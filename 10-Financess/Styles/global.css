@@ -1,0 +1,108 @@
+body {
+    margin: 0;
+}
+
+:root {
+    --color-main: #E3B505;
+    --color-sec: #dadacfc7;
+    --color-ter: #fff;
+    --color-font: #000;
+}
+
+header {
+    text-align: right;
+}
+
+nav.navbar {
+    padding: 2%;
+}
+
+nav.navbar a {
+    width: auto;
+    font-size: 19px;
+}
+
+.centralize {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading {
+    background: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+}
+
+.loading label {
+    font-size: 24px;
+}
+
+input, button, select {
+    padding: 10px;
+    margin-bottom: 10px;
+    width: 300px;
+}
+
+input[type='radio'] {
+    width: auto;
+}
+
+
+.clear {
+    background: transparent;
+    border: none;
+}
+
+.solid {
+    background-color: var(--color-main);
+    color: var(--color-font);
+    border: none;
+}
+
+.outline {
+    background: transparent;
+    color: var(--color-font);
+    border: 1px solid var(--color-font);
+}
+
+.outline.danger {
+    color: red;
+    border-color: red;
+}
+
+.error {
+    color: red;
+    display: none;
+}
+
+button:active {
+    opacity: 0.8;
+}
+
+button[disabled] {
+    opacity: 0.7;
+}
+
+button.fab {
+    width: 54px;
+    height: 54px;
+    border-radius: 50px;  
+    border: none;
+    font-size: 24px;
+    box-shadow: 2px 2px 2px gray;
+}
+
+button.fab.fixed {
+    position: fixed;
+}
+
+button.fab.bottom {
+    bottom: 32px;
+
+}button.fab.right {
+    right: 32px;
+}
+

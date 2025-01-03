@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COU</title>
+    <style>
+        .caixa {
+            margin-top: 2vh;
+        }
+
+        input {
+            background-color: #ddd;
+            width: 300px;
+            border: none;
+        }
+
+        button {
+            background-color: #ddd;
+            border: none;
+            margin-top: 2vh;
+            width: 200px;
+        }
+
+        .pessoa {
+            background-color: #ddd;
+            width: 100px;
+            height: 50px;
+            margin-top: 5vh;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="caixa">
+            <label for="iNome">Nome</label>
+            <input type="text" id="iNome">
+        </div>
+        <div class="caixa">
+            <label for="iIdade">Idade</label>
+            <input type="text" id="iIdade">
+        </div>
+        <button id="button">Adicionar</button>
+        <div id="res"></div>
+    </div>
+
+    <script>
+        let nome = document.getElementById("iNome");
+        let idade = document.getElementById("iIdade");
+        
+        const Pessoa = {
+            nome: "",
+            idade: "",
+            getNome:function(){
+                return this.nome;
+            },
+            getIdade:function(){
+                return this.idade;
+            }
+        }
+
+        let pessoas = [];
+
+        const btnAdd = document.getElementById("button");
+        const res = document.getElementById("res");
+
+        btnAdd.addEventListener("click",(evt)=>{
+            let p = Pessoa;
+            p.nome = nome.value;
+            p.idade = idade.value;
+            pessoas.push(p);
+            addPessoa();    
+
+            console.log(pessoas);
+        })
+
+        const addPessoa = () => {
+            res.innerHTML = "";
+            pessoas.map((p)=>{
+                const div = document.createElement("div");
+                div.setAttribute("class","pessoa");
+                div.innerHTML += `NOME: ${p.getNome()}<br/>IDADE: ${p.getIdade()}`;
+                res.appendChild(div);
+            })
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAL</title>
+    <style>
+        .valor {
+            width: 400px;
+            height: 40px;
+        }
+
+        input {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="valor">
+        <label for="valor1">valor 01</label>
+        <input type="text" value="0" name="valor1" id="valor1">
+    </div>
+    <div class="valor">
+        <label for="valor2">valor 02</label>
+        <input type="text" value="0" name="valor2" id="valor2">
+    </div>
+    <div class="valor">
+        <label for="res">Resultado: </label>
+        <input type="text" value="0" name="res" id="res" readonly style="cursor: not-allowed;">
+    </div>
+    <div class="op">
+        <button id="btn_soma">+</button>
+        <button id="btn_subtracao">-</button>
+        <button id="btn_multiplicacao">x</button>
+        <button id="btn_divisao">/</button>
+    </div>
+
+    <script>
+        const btnSoma = document.querySelector("#btn_soma");
+        const btnSub = document.querySelector("#btn_subtracao");
+        const btnMul = document.querySelector("#btn_multiplicacao");
+        const btnDiv = document.querySelector("#btn_divisao");
+
+        const op=[
+            ()=>{
+                const val=[document.querySelector("#valor1").value,document.querySelector("#valor2").value]
+                res.value = Number(val[0])+Number(val[1])
+            },
+            ()=>{
+                const val=[document.querySelector("#valor1").value,document.querySelector("#valor2").value]
+                res.value = Number(val[0])-Number(val[1])
+            },
+            ()=>{
+                const val=[document.querySelector("#valor1").value,document.querySelector("#valor2").value]
+                res.value = Number(val[0])*Number(val[1])
+            },
+            ()=>{
+                const val=[document.querySelector("#valor1").value,document.querySelector("#valor2").value]
+                res.value = Number(val[0])/Number(val[1])
+            }
+        ];
+
+        btnSoma.addEventListener("click",op[0]);
+        btnSub.addEventListener("click",op[1]);
+        btnMul.addEventListener("click",op[2]);
+        btnDiv.addEventListener("click",op[3]);
+    </script>
+</body>
+</html>

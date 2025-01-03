@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SelInd</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            border: none;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 5vh;
+        }
+
+        #divAdicionarElementos {
+            border: 2px solid #000;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            margin: 5px;
+            padding: 5px;
+            width: 20%;
+        }
+
+        .button {
+            height: 5vh;
+            margin-top: 4px;
+            border-radius: 10px;
+        }
+
+        .elementos {
+            background-color: #ccc;
+            color: #444;
+            display: flex;
+            justify-content: center;
+            width: 200px;
+            border: 4px solid #888;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 5px 0px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .selecionado {
+            background-color: #800 !important;
+            color: #fcc !important;
+            border-color: #f00 !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="divAdicionarElementos">
+        <input type="text" id="inputNomeElemento" placeholder="Digite o nome do elemento">
+        <button id="btAdicionarAntes" class="button">Adicionar Antes</button>
+        <button id="btAdicionarDepois" class="button">Adicionar Depois</button>
+        <button id="btRemoverElemento" class="button">Remover Elemento</button>
+    </div>
+
+    <div id="divDosElementos">
+
+    </div>
+
+    <script>
+        const btnAdicionarAntes = document.getElementById('btAdicionarAntes');
+        const btnAdicionarDepois = document.getElementById('btAdicionarDepois');
+        const input = document.getElementById('inputNomeElemento');
+        const divDosElementos = document.querySelector('#divDosElementos')
+        const elementos = ['bloco1','bloco2','bloco3','bloco4']
+
+        const tirarSelecao = () => {
+            const elementosSelecionados = [...document.querySelectorAll('.selecionado')];
+            elementosSelecionados.map((el)=>{
+                el.classList.remove("selecionado");
+            });
+        }
+
+        let indice = 0;
+        const criarNovoElemento = (elemento) => {
+            const novoElemento = document.createElement("div");
+            novoElemento.setAttribute('id','c'+indice);
+            novoElemento.setAttribute('class','elementos');
+            novoElemento.innerHTML = elemento;
+
+            novoElemento.addEventListener('click',(evt)=>{
+                tirarSelecao();
+                evt.target.classList.toggle('selecionado');
+            });
+
+            return novoElemento
+        }
+
+        elementos.map((el)=>{
+            const novoElemento = criarNovoElemento(el);
+            divDosElementos.appendChild(novoElemento);
+            indice++;
+        });
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+* {
+    padding: 0px;
+    border: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+    outline: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    height: 100vh;
+    width: 100%;
+    flex-direction: column;
+}
+
+:root {
+    --color-main: #E3B505;
+    --color-sec: #dadacfc7;
+    --color-ter: #fff;
+    --color-font: #000;
+    --color-error: red;
+}
+
+.type-logo {
+    position: relative;
+    padding: 3%;
+    color: var(--color-main);
+    bottom: 24vh;
+    right: 20%;
+}
+
+input {
+    border: 1px solid var(--color-main);
+    width: 300px;
+}
+
+button {
+    cursor: pointer;
+    width: 300px;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}

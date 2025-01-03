@@ -1,0 +1,107 @@
+* {
+    padding: 0px;
+    margin: 0px;
+    border: none;
+    box-sizing: border-box;
+}
+
+.calc {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    left: -230px;
+    transition: all 0.2s;
+}
+
+.calc-aba {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 50px;
+    background-color: rgba(128, 128, 128, 0.2);
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.calc-exibir {
+    left: 0px !important;
+    transition: all 0.2s;
+}
+
+.calc_principal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #eee;
+    border: 3px solid #eee;
+    width: 230px;
+    border-radius: 5px;
+}
+
+.div-nome {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 220px;
+} 
+
+.div-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 220px;
+    border-radius: 10px;
+}
+
+.display {
+    background-color: #8a8;
+    width: 220px;
+    border-radius: 10px;
+    padding: 5px;
+    font-weight: 700;
+    text-align: right;
+    font-family: monospace;
+    font-size: larger;
+}
+
+.div-teclas {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 220px;
+    flex-wrap: wrap;
+    border-radius: 10px;
+}
+
+.tecla {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #aaa;
+    border: 3px solid #888;
+    font-weight: bold;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    border-radius: 10px;
+    margin: 2px;
+}
+
+.tecla:hover {
+    background-color: #ddd;
+}
+
+.teclaOp {
+    background-color: #f44;
+    border-color: #800;
+}
+
+.teclaIgual {
+    background-color: #191;
+    border-color: #140;
+}
+
