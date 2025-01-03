@@ -4,8 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CreatePDF</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            font-family: monospace;
+        }
+        
+        main {
+            background-color: #c0c0c0;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        input, textarea {
+            border-radius: 5px;
+            margin-bottom: 2vh;
+        }
+        
+        textarea {
+            height: 125px;
+        }
+
+        button {
+            width: 400px;
+            margin-top: 2vh;
+            padding: 5px;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
-    
+    <div>
+        <h1>CreatePDF - Basic Version</h1>
+
+        <main>
+            <input type="text" id="title" placeholder="titulo">
+            <textarea id="conteudo" placeholder="conteudo"></textarea>
+        </main>
+
+        <button id="btnImprimir">Gerar PDF</button>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
