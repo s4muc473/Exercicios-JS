@@ -1,0 +1,26 @@
+body {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+#form {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 25%;
+    border: 1px solid #000;
+}
+
+#campo {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 70%;
+    padding: 5px;
+}
+
+#btn_gravar {
+    width: 260px;
+    margin: 2vh;
+}
