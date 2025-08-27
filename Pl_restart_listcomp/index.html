@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Compras</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .app-header {
+            background: #0984e3;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .app-main {
+            padding: 20px;
+        }
+        
+        .item-form {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        #item-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        #quantity-input {
+            width: 80px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        #add-item {
+            background: #0984e3;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .items-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .item-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+        
+        .item-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .item-item.purchased {
+            opacity: 0.7;
+        }
+        
+        .item-item.purchased .item-text {
+            text-decoration: line-through;
+        }
+        
+        .item-checkbox {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .item-info {
+            flex: 1;
+        }
+        
+        .item-text {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .item-quantity {
+            font-size: 14px;
+            color: #636e72;
+        }
+        
+        .item-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .item-delete {
+            background: #ff7675;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .item-edit {
+            background: #fdcb6e;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+        }
+        
+        .filters {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        .filter-btn {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .filter-btn.active {
+            background: #0984e3;
+            color: white;
+            border-color: #0984e3;
+        }
+        
+        .stats {
+            margin-top: 20px;
+            text-align: center;
+            color: #636e72;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Lista de Compras</h1>
+        </header>
+        
+        <main class="app-main">
+            <div class="item-form">
+                <input type="text" id="item-input" placeholder="Item...">
+                <input type="number" id="quantity-input" placeholder="Qtd" value="1" min="1">
+                <button id="add-item">Adicionar</button>
+            </div>
+            
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="pending">Pendentes</button>
+                <button class="filter-btn" data-filter="purchased">Comprados</button>
+            </div>
+            
+            <div class="items-container" id="items-container">
+                <!-- Itens serão inseridos aqui -->
+            </div>
+            
+            <div class="stats" id="stats">
+                0 itens na lista
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Edição -->
+    <div class="modal" id="edit-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
+        <div class="modal-content" style="background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px;">
+            <h3 style="margin-bottom: 15px;">Editar Item</h3>
+            <div style="margin-bottom: 15px;">
+                <input type="text" id="edit-item-input" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <input type="number" id="edit-quantity-input" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px;" min="1">
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button id="cancel-edit" style="padding: 8px 15px; border: 1px solid #ddd; background: white; border-radius: 5px; cursor: pointer;">Cancelar</button>
+                <button id="save-edit" style="padding: 8px 15px; background: #0984e3; color: white; border: none; border-radius: 5px; cursor: pointer;">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Módulo de Gerenciamento de Dados
+        class DataManager {
+            constructor() {
+                this.STORAGE_KEY = 'SHOPPING_LIST_DATA';
+                this.init();
+            }
+            
+            init() {
+                if (!this.getData()) {
+                    this.saveData([]);
+                }
+            }
+            
+            getData() {
+                return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || null;
+            }
+            
+            saveData(data) {
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+                return true;
+            }
+            
+            addItem(name, quantity) {
+                const items = this.getData();
+                const newItem = {
+                    id: Date.now(),
+                    name: name.trim(),
+                    quantity: parseInt(quantity),
+                    purchased: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                items.push(newItem);
+                return this.saveData(items);
+            }
+            
+            toggleItem(id) {
+                const items = this.getData();
+                const itemIndex = items.findIndex(item => item.id === id);
+                
+                if (itemIndex === -1) return false;
+                
+                items[itemIndex].purchased = !items[itemIndex].purchased;
+                return this.saveData(items);
+            }
+            
+            updateItem(id, name, quantity) {
+                const items = this.getData();
+                const itemIndex = items.findIndex(item => item.id === id);
+                
+                if (itemIndex === -1) return false;
+                
+                items[itemIndex].name = name.trim();
+                items[itemIndex].quantity = parseInt(quantity);
+                return this.saveData(items);
+            }
+            
+            deleteItem(id) {
+                const items = this.getData();
+                const updatedItems = items.filter(item => item.id !== id);
+                return this.saveData(updatedItems);
+            }
+            
+            getItems(filter = 'all') {
+                const items = this.getData();
+                
+                switch(filter) {
+                    case 'pending':
+                        return items.filter(item => !item.purchased);
+                    case 'purchased':
+                        return items.filter(item => item.purchased);
+                    default:
+                        return items;
+                }
+            }
+            
+            getStats() {
+                const items = this.getData();
+                const total = items.length;
+                const purchased = items.filter(item => item.purchased).length;
+                const pending = total - purchased;
+                
+                return { total, purchased, pending };
+            }
+        }
+
+        // Módulo de Interface do Usuário
+        class UI {
+            constructor(dataManager) {
+                this.dataManager = dataManager;
+                this.currentFilter = 'all';
+                this.editingItemId = null;
+                
+                this.domElements = {
+                    itemInput: document.getElementById('item-input'),
+                    quantityInput: document.getElementById('quantity-input'),
+                    addItemBtn: document.getElementById('add-item'),
+                    itemsContainer: document.getElementById('items-container'),
+                    filterBtns: document.querySelectorAll('.filter-btn'),
+                    statsElement: document.getElementById('stats'),
+                    editModal: document.getElementById('edit-modal'),
+                    editItemInput: document.getElementById('edit-item-input'),
+                    editQuantityInput: document.getElementById('edit-quantity-input'),
+                    cancelEditBtn: document.getElementById('cancel-edit'),
+                    saveEditBtn: document.getElementById('save-edit')
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.renderItems();
+                this.updateStats();
+                this.setupEventListeners();
+            }
+            
+            renderItems() {
+                const items = this.dataManager.getItems(this.currentFilter);
+                this.domElements.itemsContainer.innerHTML = '';
+                
+                if (items.length === 0) {
+                    this.domElements.itemsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <p>Nenhum item ${this.getFilterText()}</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                items.forEach(item => this.createItemElement(item));
+            }
+            
+            getFilterText() {
+                switch(this.currentFilter) {
+                    case 'pending': return 'pendente';
+                    case 'purchased': return 'comprado';
+                    default: return 'na lista';
+                }
+            }
+            
+            createItemElement(item) {
+                const itemElement = document.createElement('div');
+                itemElement.className = `item-item ${item.purchased ? 'purchased' : ''}`;
+                itemElement.setAttribute('data-id', item.id);
+                
+                itemElement.innerHTML = `
+                    <input type="checkbox" class="item-checkbox" ${item.purchased ? 'checked' : ''}>
+                    <div class="item-info">
+                        <div class="item-text">${item.name}</div>
+                        <div class="item-quantity">Quantidade: ${item.quantity}</div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="item-edit">Editar</button>
+                        <button class="item-delete">Excluir</button>
+                    </div>
+                `;
+                
+                // Event listeners
+                const checkbox = itemElement.querySelector('.item-checkbox');
+                const deleteBtn = itemElement.querySelector('.item-delete');
+                const editBtn = itemElement.querySelector('.item-edit');
+                
+                checkbox.addEventListener('change', () => {
+                    this.dataManager.toggleItem(item.id);
+                    this.renderItems();
+                    this.updateStats();
+                });
+                
+                deleteBtn.addEventListener('click', () => {
+                    this.dataManager.deleteItem(item.id);
+                    this.renderItems();
+                    this.updateStats();
+                });
+                
+                editBtn.addEventListener('click', () => {
+                    this.openEditModal(item);
+                });
+                
+                this.domElements.itemsContainer.appendChild(itemElement);
+            }
+            
+            openEditModal(item) {
+                this.editingItemId = item.id;
+                this.domElements.editItemInput.value = item.name;
+                this.domElements.editQuantityInput.value = item.quantity;
+                this.domElements.editModal.style.display = 'flex';
+            }
+            
+            closeEditModal() {
+                this.domElements.editModal.style.display = 'none';
+                this.editingItemId = null;
+            }
+            
+            saveItemEdit() {
+                const name = this.domElements.editItemInput.value.trim();
+                const quantity = this.domElements.editQuantityInput.value;
+                
+                if (name && quantity > 0) {
+                    this.dataManager.updateItem(this.editingItemId, name, quantity);
+                    this.renderItems();
+                    this.closeEditModal();
+                }
+            }
+            
+            updateStats() {
+                const { total, purchased, pending } = this.dataManager.getStats();
+                this.domElements.statsElement.textContent = 
+                    `${total} itens na lista (${purchased} comprados, ${pending} pendentes)`;
+            }
+            
+            addItem() {
+                const name = this.domElements.itemInput.value.trim();
+                const quantity = this.domElements.quantityInput.value;
+                
+                if (name && quantity > 0) {
+                    this.dataManager.addItem(name, quantity);
+                    this.domElements.itemInput.value = '';
+                    this.domElements.quantityInput.value = '1';
+                    this.renderItems();
+                    this.updateStats();
+                    
+                    // Foca novamente no campo de texto
+                    this.domElements.itemInput.focus();
+                }
+            }
+            
+            setupEventListeners() {
+                // Adicionar item
+                this.domElements.addItemBtn.addEventListener('click', () => this.addItem());
+                this.domElements.itemInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.addItem();
+                });
+                
+                // Filtros
+                this.domElements.filterBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.domElements.filterBtns.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.currentFilter = btn.dataset.filter;
+                        this.renderItems();
+                    });
+                });
+                
+                // Modal de edição
+                this.domElements.cancelEditBtn.addEventListener('click', () => this.closeEditModal());
+                this.domElements.saveEditBtn.addEventListener('click', () => this.saveItemEdit());
+                
+                // Fechar modal clicando fora dele
+                this.domElements.editModal.addEventListener('click', (e) => {
+                    if (e.target === this.domElements.editModal) {
+                        this.closeEditModal();
+                    }
+                });
+                
+                // Permitir Enter no modal
+                this.domElements.editItemInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.saveItemEdit();
+                });
+                
+                this.domElements.editQuantityInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.saveItemEdit();
+                });
+            }
+        }
+
+        // Inicialização da aplicação
+        document.addEventListener('DOMContentLoaded', () => {
+            const dataManager = new DataManager();
+            const ui = new UI(dataManager);
+            
+            // Expor para debug (pode remover em produção)
+            window.app = {
+                dataManager,
+                ui
+            };
+        });
+    </script>
+</body>
+</html>
