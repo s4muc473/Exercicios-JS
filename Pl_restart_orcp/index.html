@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Orçamento</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .app-container {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .app-header {
+            background: #8e44ad;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .summary {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .summary-item {
+            text-align: center;
+        }
+        
+        .summary-label {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .summary-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .positive {
+            color: #28a745;
+        }
+        
+        .negative {
+            color: #dc3545;
+        }
+        
+        .app-main {
+            padding: 20px;
+        }
+        
+        .transaction-form {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .btn-primary {
+            background: #8e44ad;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .transactions-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+        
+        .transaction-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .transaction-info {
+            flex: 1;
+        }
+        
+        .transaction-name {
+            font-weight: 500;
+        }
+        
+        .transaction-category {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .transaction-amount {
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        .transaction-delete {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Gerenciador de Orçamento</h1>
+        </header>
+        
+        <div class="summary">
+            <div class="summary-item">
+                <div class="summary-label">Saldo</div>
+                <div class="summary-value" id="balance">R$ 0,00</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">Receitas</div>
+                <div class="summary-value positive" id="income">R$ 0,00</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">Despesas</div>
+                <div class="summary-value negative" id="expense">R$ 0,00</div>
+            </div>
+        </div>
+        
+        <main class="app-main">
+            <div class="transaction-form">
+                <div class="form-group">
+                    <label class="form-label" for="transaction-name">Descrição</label>
+                    <input type="text" id="transaction-name" class="form-input" placeholder="Ex: Salário, Aluguel...">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="transaction-amount">Valor</label>
+                    <input type="number" id="transaction-amount" class="form-input" placeholder="0,00" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="transaction-type">Tipo</label>
+                    <select id="transaction-type" class="form-select">
+                        <option value="income">Receita</option>
+                        <option value="expense">Despesa</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="transaction-category">Categoria</label>
+                    <input type="text" id="transaction-category" class="form-input" placeholder="Ex: Trabalho, Casa...">
+                </div>
+                
+                <div class="form-actions">
+                    <button id="add-transaction" class="btn-primary">Adicionar</button>
+                </div>
+            </div>
+            
+            <div class="transactions-container" id="transactions-container">
+                <!-- Transações serão inseridas aqui -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Módulo de Gerenciamento de Dados
+        class DataManager {
+            constructor() {
+                this.STORAGE_KEY = 'BUDGET_DATA';
+                this.init();
+            }
+            
+            init() {
+                if (!this.getData()) {
+                    this.saveData([]);
+                }
+            }
+            
+            getData() {
+                return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || null;
+            }
+            
+            saveData(data) {
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+                return true;
+            }
+            
+            addTransaction(name, amount, type, category) {
+                const transactions = this.getData();
+                const newTransaction = {
+                    id: Date.now(),
+                    name: name.trim(),
+                    amount: parseFloat(amount),
+                    type: type,
+                    category: category.trim(),
+                    date: new Date().toISOString()
+                };
+                
+                transactions.push(newTransaction);
+                return this.saveData(transactions);
+            }
+            
+            deleteTransaction(id) {
+                const transactions = this.getData();
+                const updatedTransactions = transactions.filter(transaction => transaction.id !== id);
+                return this.saveData(updatedTransactions);
+            }
+            
+            getTransactions() {
+                return this.getData();
+            }
+            
+            getBalance() {
+                const transactions = this.getData();
+                let balance = 0;
+                let income = 0;
+                let expense = 0;
+                
+                transactions.forEach(transaction => {
+                    if (transaction.type === 'income') {
+                        balance += transaction.amount;
+                        income += transaction.amount;
+                    } else {
+                        balance -= transaction.amount;
+                        expense += transaction.amount;
+                    }
+                });
+                
+                return {
+                    balance,
+                    income,
+                    expense
+                };
+            }
+        }
+
+        // Módulo de Interface do Usuário
+        class UI {
+            constructor(dataManager) {
+                this.dataManager = dataManager;
+                
+                this.domElements = {
+                    transactionName: document.getElementById('transaction-name'),
+                    transactionAmount: document.getElementById('transaction-amount'),
+                    transactionType: document.getElementById('transaction-type'),
+                    transactionCategory: document.getElementById('transaction-category'),
+                    addTransactionBtn: document.getElementById('add-transaction'),
+                    transactionsContainer: document.getElementById('transactions-container'),
+                    balanceElement: document.getElementById('balance'),
+                    incomeElement: document.getElementById('income'),
+                    expenseElement: document.getElementById('expense')
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.renderTransactions();
+                this.updateSummary();
+                this.setupEventListeners();
+            }
+            
+            renderTransactions() {
+                const transactions = this.dataManager.getTransactions();
+                this.domElements.transactionsContainer.innerHTML = '';
+                
+                if (transactions.length === 0) {
+                    this.domElements.transactionsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <p>Nenhuma transação registrada</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Ordenar por data (mais recente primeiro)
+                transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                transactions.forEach(transaction => this.createTransactionElement(transaction));
+            }
+            
+            createTransactionElement(transaction) {
+                const transactionElement = document.createElement('div');
+                transactionElement.className = 'transaction-item';
+                transactionElement.setAttribute('data-id', transaction.id);
+                
+                transactionElement.innerHTML = `
+                    <div class="transaction-info">
+                        <div class="transaction-name">${transaction.name}</div>
+                        <div class="transaction-category">${transaction.category}</div>
+                    </div>
+                    <div class="transaction-amount ${transaction.type}">
+                        ${transaction.type === 'income' ? '+' : '-'} R$ ${transaction.amount.toFixed(2)}
+                    </div>
+                    <button class="transaction-delete">Excluir</button>
+                `;
+                
+                // Event listener para o botão de excluir
+                const deleteBtn = transactionElement.querySelector('.transaction-delete');
+                deleteBtn.addEventListener('click', () => {
+                    this.dataManager.deleteTransaction(transaction.id);
+                    this.renderTransactions();
+                    this.updateSummary();
+                });
+                
+                this.domElements.transactionsContainer.appendChild(transactionElement);
+            }
+            
+            updateSummary() {
+                const { balance, income, expense } = this.dataManager.getBalance();
+                
+                this.domElements.balanceElement.textContent = `R$ ${balance.toFixed(2)}`;
+                this.domElements.incomeElement.textContent = `R$ ${income.toFixed(2)}`;
+                this.domElements.expenseElement.textContent = `R$ ${expense.toFixed(2)}`;
+                
+                // Atualizar cor do saldo
+                this.domElements.balanceElement.className = `summary-value ${balance >= 0 ? 'positive' : 'negative'}`;
+            }
+            
+            setupEventListeners() {
+                // Adicionar transação
+                this.domElements.addTransactionBtn.addEventListener('click', () => this.addTransaction());
+                
+                // Permitir adicionar com Enter
+                const formInputs = [
+                    this.domElements.transactionName,
+                    this.domElements.transactionAmount,
+                    this.domElements.transactionCategory
+                ];
+                
+                formInputs.forEach(input => {
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') this.addTransaction();
+                    });
+                });
+            }
+            
+            addTransaction() {
+                const name = this.domElements.transactionName.value.trim();
+                const amount = this.domElements.transactionAmount.value;
+                const type = this.domElements.transactionType.value;
+                const category = this.domElements.transactionCategory.value.trim();
+                
+                if (name && amount > 0 && category) {
+                    this.dataManager.addTransaction(name, amount, type, category);
+                    
+                    // Limpar formulário
+                    this.domElements.transactionName.value = '';
+                    this.domElements.transactionAmount.value = '';
+                    this.domElements.transactionCategory.value = '';
+                    
+                    // Atualizar UI
+                    this.renderTransactions();
+                    this.updateSummary();
+                }
+            }
+        }
+
+        // Inicializar a aplicação
+        document.addEventListener('DOMContentLoaded', () => {
+            const dataManager = new DataManager();
+            const ui = new UI(dataManager);
+        });
+    </script>
+</body>
+</html>
