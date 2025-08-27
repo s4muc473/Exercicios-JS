@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tarefas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .app-header {
+            background: #6c5ce7;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .app-main {
+            padding: 20px;
+        }
+        
+        .task-form {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        #task-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        #add-task {
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .tasks-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+        
+        .task-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .task-item.completed {
+            opacity: 0.7;
+        }
+        
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+        }
+        
+        .task-checkbox {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .task-text {
+            flex: 1;
+            font-size: 16px;
+        }
+        
+        .task-delete {
+            background: #ff7675;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+        }
+        
+        .filters {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        .filter-btn {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .filter-btn.active {
+            background: #6c5ce7;
+            color: white;
+            border-color: #6c5ce7;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Lista de Tarefas</h1>
+        </header>
+        
+        <main class="app-main">
+            <div class="task-form">
+                <input type="text" id="task-input" placeholder="Nova tarefa...">
+                <button id="add-task">Adicionar</button>
+            </div>
+            
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Todas</button>
+                <button class="filter-btn" data-filter="active">Ativas</button>
+                <button class="filter-btn" data-filter="completed">Concluídas</button>
+            </div>
+            
+            <div class="tasks-container" id="tasks-container">
+                <!-- Tarefas serão inseridas aqui -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Módulo de Gerenciamento de Dados
+        class DataManager {
+            constructor() {
+                this.STORAGE_KEY = 'TASKS_DATA';
+                this.init();
+            }
+            
+            init() {
+                if (!this.getData()) {
+                    this.saveData([]);
+                }
+            }
+            
+            getData() {
+                return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || null;
+            }
+            
+            saveData(data) {
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+                return true;
+            }
+            
+            addTask(text) {
+                const tasks = this.getData();
+                const newTask = {
+                    id: Date.now(),
+                    text: text.trim(),
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                tasks.push(newTask);
+                return this.saveData(tasks);
+            }
+            
+            toggleTask(id) {
+                const tasks = this.getData();
+                const taskIndex = tasks.findIndex(task => task.id === id);
+                
+                if (taskIndex === -1) return false;
+                
+                tasks[taskIndex].completed = !tasks[taskIndex].completed;
+                return this.saveData(tasks);
+            }
+            
+            deleteTask(id) {
+                const tasks = this.getData();
+                const updatedTasks = tasks.filter(task => task.id !== id);
+                return this.saveData(updatedTasks);
+            }
+            
+            getTasks(filter = 'all') {
+                const tasks = this.getData();
+                
+                switch(filter) {
+                    case 'active':
+                        return tasks.filter(task => !task.completed);
+                    case 'completed':
+                        return tasks.filter(task => task.completed);
+                    default:
+                        return tasks;
+                }
+            }
+        }
+
+        // Módulo de Interface do Usuário
+        class UI {
+            constructor(dataManager) {
+                this.dataManager = dataManager;
+                this.currentFilter = 'all';
+                
+                this.domElements = {
+                    taskInput: document.getElementById('task-input'),
+                    addTaskBtn: document.getElementById('add-task'),
+                    tasksContainer: document.getElementById('tasks-container'),
+                    filterBtns: document.querySelectorAll('.filter-btn')
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.renderTasks();
+                this.setupEventListeners();
+            }
+            
+            renderTasks() {
+                const tasks = this.dataManager.getTasks(this.currentFilter);
+                this.domElements.tasksContainer.innerHTML = '';
+                
+                if (tasks.length === 0) {
+                    this.domElements.tasksContainer.innerHTML = `
+                        <div class="empty-state">
+                            <p>Nenhuma tarefa ${this.getFilterText()}</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                tasks.forEach(task => this.createTaskElement(task));
+            }
+            
+            getFilterText() {
+                switch(this.currentFilter) {
+                    case 'active': return 'ativa';
+                    case 'completed': return 'concluída';
+                    default: return '';
+                }
+            }
+            
+            createTaskElement(task) {
+                const taskElement = document.createElement('div');
+                taskElement.className = `task-item ${task.completed ? 'completed' : ''}`;
+                taskElement.setAttribute('data-id', task.id);
+                
+                taskElement.innerHTML = `
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+                    <span class="task-text">${task.text}</span>
+                    <button class="task-delete">Excluir</button>
+                `;
+                
+                // Event listeners
+                const checkbox = taskElement.querySelector('.task-checkbox');
+                const deleteBtn = taskElement.querySelector('.task-delete');
+                
+                checkbox.addEventListener('change', () => {
+                    this.dataManager.toggleTask(task.id);
+                    this.renderTasks();
+                });
+                
+                deleteBtn.addEventListener('click', () => {
+                    this.dataManager.deleteTask(task.id);
+                    this.renderTasks();
+                });
+                
+                this.domElements.tasksContainer.appendChild(taskElement);
+            }
+            
+            setupEventListeners() {
+                // Adicionar tarefa
+                this.domElements.addTaskBtn.addEventListener('click', () => this.addTask());
+                this.domElements.taskInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.addTask();
+                });
+                
+                // Filtros
+                this.domElements.filterBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.domElements.filterBtns.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.currentFilter = btn.dataset.filter;
+                        this.renderTasks();
+                    });
+                });
+            }
+            
+            addTask() {
+                const text = this.domElements.taskInput.value.trim();
+                if (text) {
+                    this.dataManager.addTask(text);
+                    this.domElements.taskInput.value = '';
+                    this.renderTasks();
+                }
+            }
+        }
+
+        // Inicializar a aplicação
+        document.addEventListener('DOMContentLoaded', () => {
+            const dataManager = new DataManager();
+            const ui = new UI(dataManager);
+        });
+    </script>
+</body>
+</html>
